@@ -5,6 +5,8 @@ import cv2
 from MainUi import Ui_MainWindow
 from ultralytics import YOLO
 from ImageDetect import ImageDetect
+from PyQt5.QtCore import QTimer
+
 
 model = YOLO(r'model/yolov11n-face.pt')
 
@@ -13,19 +15,30 @@ class HandlePageGetData(Ui_MainWindow):
         super().__init__(MainWindow)
         self.stackedWidget.setCurrentWidget(self.page_get_data)
         self.count = 0
-        self.mode_cam = 1 # 0: tắt camera, 1: bật camera hiện ảnh bình thường, 2: detect ảnh ...
+        self.mode_cam = 'off' # 0: tắt camera, 1: bật camera hiện ảnh bình thường, 2: detect ảnh ...
 
         self.timer = QTimer()
         self.timer.start(30)  # Update every 30ms (approx 33 FPS)
 
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
-
+        self.number_face = None
     def start_detect(self):
-        if(self.mode_cam == 1):
+        self.number_face = int(self.get_number_face.toPlainText())
+        if(self.mode_cam == 'update_frame'):
             self.timer.timeout.disconnect(self.update_frame)
         
-        self.mode_cam = 2
+        if(self.count >= self.number_face):
+
+            self.timer.timeout.connect(self.update_frame)
+            
+            # QTimer.singleShot(1000, lambda: setattr(self, "count", 0))
+            self.count = 0
+
+
+            
+
+        self.mode_cam = 'start_detect'
         
         check_done, frame = self.cap.read()
         if(check_done == False):
@@ -51,10 +64,10 @@ class HandlePageGetData(Ui_MainWindow):
         self.count += 1
     
     def update_frame(self):
-        if(self.mode_cam == 2):
+        if(self.mode_cam == 'start_detect'):
             self.timer.timeout.disconnect(self.start_detect)
-        self.mode_cam = 1
-        
+        self.mode_cam = 'update_frame'
+
         # Đọc một khung hình từ camera
         ret, frame = self.cap.read()
         frame = cv2.flip(frame, 1)

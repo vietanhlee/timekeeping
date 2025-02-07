@@ -16,19 +16,25 @@ class HandleMain(HandlePageGetData, HandelPageTrain):
         self.button_instrucst.click()
     def change_page(self, index):
         if(index == 1):
+            print('page1')
+
             self.stackedWidget.setCurrentWidget(self.page_instruct)
             
             if self.cap != None:
-                if(self.mode_cam == 1):
-                    self.timer.timeout.disconnect(self.start_detect)
-                elif(self.mode_cam == 2):
+                
+                if(self.mode_cam == 'update_frame'):
                     self.timer.timeout.disconnect(self.update_frame)
+                elif(self.mode_cam == 'start_detect'):
+                    self.timer.timeout.disconnect(self.start_detect)
                 
                 self.cap.release()
                 self.cap = None
-                self.mode_cam = 0
+                self.mode_cam = 'off'
+                
 
         elif(index == 2):
+            print('page2')
+
             self.stackedWidget.setCurrentWidget(self.page_get_data)
             
             if self.cap == None:
@@ -36,22 +42,28 @@ class HandleMain(HandlePageGetData, HandelPageTrain):
                 if not self.cap.isOpened():
                     print("Không thể mở camera")
                     return
-            self.timer.timeout.connect(self.update_frame)
-            self.mode_cam = 1
+                
+                self.timer.timeout.connect(self.update_frame)
+                self.mode_cam = 'update_fram'
+
         elif(index == 3):
+            print('page3')
+
             self.stackedWidget.setCurrentWidget(self.page_train)
             
             if self.cap != None:
-                if(self.mode_cam == 1):
-                    self.timer.timeout.disconnect(self.start_detect)
-                elif(self.mode_cam == 2):
+                
+                if(self.mode_cam == 'update_frame'):
                     self.timer.timeout.disconnect(self.update_frame)
+                elif(self.mode_cam == 'start_detect'):
+                    self.timer.timeout.disconnect(self.start_detect)
                 
                 self.cap.release()
                 self.cap = None
-                self.mode_cam = 0
-                
+                self.mode_cam = 'off'
+
         elif(index == 4):
+            print('page4')
             self.stackedWidget.setCurrentWidget(self.page_run)
             
             if self.cap == None:

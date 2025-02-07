@@ -38,7 +38,7 @@
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>50</x>
       <y>90</y>
       <width>1181</width>
       <height>61</height>
@@ -118,7 +118,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="page_instruct">
      <widget class="QTextBrowser" name="textBrowser">
@@ -159,7 +159,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="label_2">
       <property name="geometry">
        <rect>
-        <x>720</x>
+        <x>710</x>
         <y>120</y>
         <width>191</width>
         <height>31</height>
@@ -187,8 +187,11 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="font">
        <font>
-        <pointsize>12</pointsize>
+        <pointsize>16</pointsize>
        </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
       <property name="styleSheet">
        <string notr="true">border: 1px solid black</string>
@@ -201,7 +204,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>930</x>
-        <y>440</y>
+        <y>460</y>
         <width>141</width>
         <height>51</height>
        </rect>
@@ -251,7 +254,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>930</x>
-        <y>500</y>
+        <y>520</y>
         <width>141</width>
         <height>51</height>
        </rect>
@@ -283,15 +286,33 @@ p, li { white-space: pre-wrap; }
        <string>Nhìn thẳng vào camera để lấy dữ liệu</string>
       </property>
      </widget>
-    </widget>
-    <widget class="QWidget" name="page_train">
-     <widget class="QLabel" name="log_res">
+     <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>90</y>
-        <width>621</width>
-        <height>461</height>
+        <x>710</x>
+        <y>190</y>
+        <width>191</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Số lượng ảnh cần  lấy:</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="get_number_face">
+      <property name="geometry">
+       <rect>
+        <x>960</x>
+        <y>180</y>
+        <width>81</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
@@ -302,17 +323,39 @@ p, li { white-space: pre-wrap; }
       <property name="styleSheet">
        <string notr="true">border: 1px solid black</string>
       </property>
-      <property name="text">
+      <property name="plainText">
        <string/>
       </property>
      </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>310</y>
+        <width>141</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Ảnh được cắt:</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_train">
      <widget class="QPushButton" name="push_training">
       <property name="geometry">
        <rect>
-        <x>860</x>
-        <y>270</y>
-        <width>271</width>
-        <height>101</height>
+        <x>960</x>
+        <y>490</y>
+        <width>221</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="font">
@@ -334,13 +377,59 @@ p, li { white-space: pre-wrap; }
        <string>Training model</string>
       </property>
      </widget>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>50</y>
+        <width>881</width>
+        <height>541</height>
+       </rect>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>879</width>
+         <height>539</height>
+        </rect>
+       </property>
+       <widget class="QLabel" name="log_res">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>0</y>
+          <width>851</width>
+          <height>531</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <zorder>scrollArea</zorder>
+     <zorder>push_training</zorder>
     </widget>
     <widget class="QWidget" name="page_run">
      <widget class="QPushButton" name="push_run">
       <property name="geometry">
        <rect>
         <x>890</x>
-        <y>340</y>
+        <y>380</y>
         <width>161</width>
         <height>81</height>
        </rect>
@@ -358,9 +447,9 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>790</x>
-        <y>120</y>
+        <y>70</y>
         <width>351</width>
-        <height>101</height>
+        <height>291</height>
        </rect>
       </property>
       <property name="font">
@@ -398,7 +487,7 @@ p, li { white-space: pre-wrap; }
       <property name="geometry">
        <rect>
         <x>890</x>
-        <y>430</y>
+        <y>470</y>
         <width>161</width>
         <height>81</height>
        </rect>
@@ -412,6 +501,22 @@ p, li { white-space: pre-wrap; }
        <string>Dừng lại</string>
       </property>
      </widget>
+     <widget class="QScrollBar" name="verticalScrollBar_2">
+      <property name="geometry">
+       <rect>
+        <x>1110</x>
+        <y>80</y>
+        <width>20</width>
+        <height>271</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -421,7 +526,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1266</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFace_Regconizer">

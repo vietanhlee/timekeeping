@@ -5,21 +5,35 @@ import pickle
 import numpy as np
 import cv2
 import os
+import io
+import sys
 
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
-from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, BatchNormalization, Dropout, Flatten # type: ignore
-from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.optimizers import Adam # type: ignore
-from tensorflow.keras import Input # type: ignore
+from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, Dropout, Flatten
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import Input
+from tensorflow.keras.callbacks import Callback  # Import Callback
+
+# Callback để ghi log từng epoch
+class TrainLogger(Callback):
+    def __init__(self, log_signal):
+        super().__init__()
+        self.log_signal = log_signal
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        message = f"Epoch {epoch+1}: " + " - ".join([f"{k}: {v:.4f}" for k, v in logs.items()])
+        self.log_signal.emit(message)
 
 class HandelPageTrain(Ui_MainWindow, QThread):
-    update_log_signal = pyqtSignal(str)  # Khai báo signal là class attribute
+    update_log_signal = pyqtSignal(str)  # Khai báo signal
 
     def __init__(self, MainWindow):
-        QThread.__init__(self)  # Initialize the QThread superclass
-        Ui_MainWindow.__init__(self, MainWindow)  # Initialize Ui_MainWindow superclass
+        QThread.__init__(self)
+        Ui_MainWindow.__init__(self, MainWindow)
         self.data_processed = None
         self.label_processed = None
         self.stackedWidget.setCurrentWidget(self.page_train)
@@ -30,7 +44,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
     def start_training(self):
         self.note_out = ''
         self.log_res.setText('- Bắt đầu xử lý...')
-        self.start() # Khởi tạo một luồng mới sau đó mặc định sẽ chạy hàm run()
+        self.start()
     
     def run(self):
         self.process_img_to_numpy()
@@ -88,18 +102,34 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         
         model_cnn.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['acc'])
         
+        # Ghi summary model
+        model_summary = self.get_model_summary(model_cnn)
+        self.update_log_signal.emit(model_summary)
+
         self.update_log_signal.emit('- Bắt đầu train ...')
-        
-        model_cnn.fit(xtrain, ytrain, epochs=10, validation_data=(xtest, ytest), batch_size=32)
+
+        # Sử dụng callback để log từng epoch
+        train_logger = TrainLogger(self.update_log_signal)
+
+        model_cnn.fit(xtrain, ytrain, epochs=10, validation_data=(xtest, ytest), batch_size=32, callbacks=[train_logger])
         
         self.update_log_signal.emit('- Đã train xong')
         
         model_cnn.save('model/model_cnn.h5', include_optimizer=True)
-    
+
+    def get_model_summary(self, model):
+        """Ghi model summary vào string và trả về."""
+        stream = io.StringIO()
+        sys.stdout = stream
+        model.summary()
+        sys.stdout = sys.__stdout__
+        return stream.getvalue()
+
     def update_log(self, message):
         self.note_out += f'\n\n{message}'
         self.log_res.setText(self.note_out)
-
+        self.log_res.adjustSize()
+        self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
 
 if __name__ == '__main__':
     import sys
