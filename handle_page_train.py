@@ -11,11 +11,11 @@ import sys
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
-from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, Dropout, Flatten
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras import Input
-from tensorflow.keras.callbacks import Callback  # Import Callback
+from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, Dropout, Flatten # type: ignore
+from tensorflow.keras.models import Sequential# type: ignore
+from tensorflow.keras.optimizers import Adam# type: ignore
+from tensorflow.keras import Input# type: ignore
+from tensorflow.keras.callbacks import Callback # type: ignore
 
 # Callback để ghi log từng epoch
 class TrainLogger(Callback):
@@ -42,6 +42,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.update_log_signal.connect(self.update_log)
     
     def start_training(self):
+        print('hi')
         self.note_out = ''
         self.log_res.setText('- Bắt đầu xử lý...')
         self.start()

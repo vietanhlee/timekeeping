@@ -13,7 +13,7 @@ model = YOLO(r'model/yolov11n-face.pt')
 class HandlePageGetData(Ui_MainWindow):
     def __init__(self, MainWindow):
         super().__init__(MainWindow)
-        self.stackedWidget.setCurrentWidget(self.page_get_data)
+        # self.stackedWidget.setCurrentWidget(self.page_get_data)
         self.count = 0
         self.mode_cam = 'off' # 0: tắt camera, 1: bật camera hiện ảnh bình thường, 2: detect ảnh ...
 
@@ -23,8 +23,12 @@ class HandlePageGetData(Ui_MainWindow):
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
         self.number_face = None
+        # self.cap = cv2.VideoCapture(0)
+
     def start_detect(self):
+        print('hi')
         self.number_face = int(self.get_number_face.toPlainText())
+        
         if(self.mode_cam == 'update_frame'):
             self.timer.timeout.disconnect(self.update_frame)
         
@@ -34,9 +38,6 @@ class HandlePageGetData(Ui_MainWindow):
             
             # QTimer.singleShot(1000, lambda: setattr(self, "count", 0))
             self.count = 0
-
-
-            
 
         self.mode_cam = 'start_detect'
         

@@ -2,77 +2,101 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
 from handle_page_get_data import HandlePageGetData
 from handle_page_train import HandelPageTrain
+from handle_page_run import HandlePageRun
 import cv2
 
-class HandleMain(HandlePageGetData, HandelPageTrain):
+class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
     def __init__(self, MainWindow):
+        HandlePageRun.__init__(self, MainWindow)
         HandelPageTrain.__init__(self, MainWindow)
         HandlePageGetData.__init__(self, MainWindow)
+
+        self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
+        self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
+        self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
+        self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
+        self.push_training.clicked.connect(self.start_training)
 
         self.button_instrucst.clicked.connect(lambda: self.change_page(1))
         self.button_get_faces.clicked.connect(lambda: self.change_page(2))
         self.button_preprocess_training.clicked.connect(lambda: self.change_page(3))
         self.button_run_trial.clicked.connect(lambda: self.change_page(4))
+        
         self.button_instrucst.click()
     def change_page(self, index):
         if(index == 1):
             print('page1')
-
             self.stackedWidget.setCurrentWidget(self.page_instruct)
             
+            if(self.mode_cam == 'update_frame'):
+                self.timer.timeout.disconnect(self.update_frame)
+            elif(self.mode_cam == 'start_detect'):
+                self.timer.timeout.disconnect(self.start_detect)
+            self.mode_cam = 'off'
+
+            if(self.mode_cam_run == 'update_frame_run'):
+                self.timerr.timeout.disconnect(self.update_frame_run)
+            elif(self.mode_cam_run == 'start_predict'):
+                self.timerr.timeout.disconnect(self.start_predict)
+            self.mode_cam_run = 'off'
+
             if self.cap != None:
-                
-                if(self.mode_cam == 'update_frame'):
-                    self.timer.timeout.disconnect(self.update_frame)
-                elif(self.mode_cam == 'start_detect'):
-                    self.timer.timeout.disconnect(self.start_detect)
-                
                 self.cap.release()
                 self.cap = None
-                self.mode_cam = 'off'
-                
 
         elif(index == 2):
             print('page2')
-
             self.stackedWidget.setCurrentWidget(self.page_get_data)
             
+            if(self.mode_cam_run == 'update_frame_run'):
+                self.timerr.timeout.disconnect(self.update_frame_run)
+            elif(self.mode_cam_run == 'start_predict'):
+                self.timerr.timeout.disconnect(self.start_predict)
+            self.mode_cam_run = 'off'
+        
             if self.cap == None:
                 self.cap = cv2.VideoCapture(0)
                 if not self.cap.isOpened():
-                    print("Không thể mở camera")
-                    return
-                
-                self.timer.timeout.connect(self.update_frame)
-                self.mode_cam = 'update_fram'
+                    print("Không thể mở camera")        
+            self.timer.timeout.connect(self.update_frame)
+            self.mode_cam = 'update_frame'
 
         elif(index == 3):
             print('page3')
-
             self.stackedWidget.setCurrentWidget(self.page_train)
             
-            if self.cap != None:
-                
-                if(self.mode_cam == 'update_frame'):
+            if(self.mode_cam == 'update_frame'):
                     self.timer.timeout.disconnect(self.update_frame)
-                elif(self.mode_cam == 'start_detect'):
-                    self.timer.timeout.disconnect(self.start_detect)
-                
+            elif(self.mode_cam == 'start_detect'):
+                self.timer.timeout.disconnect(self.start_detect)
+            self.mode_cam = 'off'
+
+            if(self.mode_cam_run == 'update_frame_run'):
+                self.timerr.timeout.disconnect(self.update_frame_run)
+            elif(self.mode_cam_run == 'start_predict'):
+                self.timerr.timeout.disconnect(self.start_predict)
+            self.mode_cam_run = 'off'
+
+            if self.cap != None:
                 self.cap.release()
                 self.cap = None
-                self.mode_cam = 'off'
-
         elif(index == 4):
             print('page4')
             self.stackedWidget.setCurrentWidget(self.page_run)
             
+            if(self.mode_cam == 'update_frame'):
+                self.timer.timeout.disconnect(self.update_frame)
+            elif(self.mode_cam == 'start_detect'):
+                self.timer.timeout.disconnect(self.start_detect)
+            self.mode_cam = 'off'
+
             if self.cap == None:
                 self.cap = cv2.VideoCapture(0)
                 if not self.cap.isOpened():
                     print("Không thể mở camera")
-                    return
-                    
-    
+            self.timerr.timeout.connect(self.update_frame_run)
+            self.mode_cam_run = 'update_frame_run'
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()

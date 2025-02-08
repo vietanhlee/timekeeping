@@ -12,25 +12,30 @@ import pickle
 face_model = YOLO(r'model/yolov11n-face.pt')
 model_cnn = load_model(r'model/model_cnn.h5')
 
-class HandlePageGetData(Ui_MainWindow):
+class HandlePageRun(Ui_MainWindow):
     def __init__(self, MainWindow):
         super().__init__(MainWindow)
         self.stackedWidget.setCurrentWidget(self.page_run)
-
-        self.timer = QTimer()
+        self.mode_cam_run = 'off'
+        self.timerr = QTimer()
         # Start the camera feed
-        self.timer.start(30)  # Update every 30ms (approx 33 FPS)
-
-        self.push_run.clicked.connect(lambda : self.timer.timeout.connect(self.update_predict))
-
+        self.timerr.start(30)  # Update every 30ms (approx 33 FPS)
+        self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
+        self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
+        print(1)
         # Lấy label của data là file chứa categories của OneHotEnCoder()
         with open('model/categories.pkl', 'rb') as f:
             cat = pickle.load(f)
         self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
-        self.cap = cv2.VideoCapture(0)
+        # self.cap = cv2.VideoCapture(0)
 
-    def update_predict(self):
-        
+    def start_predict(self):
+        print(1)
+        if(self.mode_cam_run == 'update_frame_run'):
+            self.timerr.timeout.disconnect(self.update_frame_run)
+
+        self.mode_cam_run = 'start_predict'
+
         # Đọc một khung hình từ camera
         ret, frame = self.cap.read()
         frame = cv2.flip(frame, 1)
@@ -75,12 +80,26 @@ class HandlePageGetData(Ui_MainWindow):
             frame = self.convert_qimg(frame)
             # Hiển thị khung hình trên QLabel
             self.cam_view_main_2.setPixmap(QPixmap.fromImage(frame).scaled(self.cam_view_main_2.size()))
+    
+    def update_frame_run(self):
+        if(self.mode_cam_run == 'start_predict'):
+            self.timerr.timeout.disconnect(self.start_predict)
+        self.mode_cam_run = 'update_frame_run'
 
+        # Đọc một khung hình từ camera
+        ret, frame = self.cap.read()
+        frame = cv2.flip(frame, 1)
+        if ret:
+            # Chuyển đổi khung hình từ BGR (OpenCV) sang RGB (Qt)
+            frame = self.convert_qimg(frame)
+            # Hiển thị khung hình trên QLabel
+            self.cam_view_main_2.setPixmap(QPixmap.fromImage(frame).scaled(self.cam_view_main_2.size()))
+    
     def closeEvent(self, event):
         # Release the camera and stop the timer when the application closes
         if self.cap != None and self.cap.isOpened():
             self.cap.release()
-        self.timer.stop()
+        self.timerr.stop()
         event.accept()
 
     def convert_qimg(self, image):
@@ -95,6 +114,6 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
-    ui = HandlePageGetData(MainWindow)
+    ui = HandlePageRun(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
