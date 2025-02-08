@@ -1,0 +1,8 @@
+PyQt5
+numpy
+opencv-python
+scikit-learn
+tensorflow
+ultralytics
+cvzone
+keras
