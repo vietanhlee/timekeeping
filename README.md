@@ -8,4 +8,14 @@
 - **B2**: chạy file `handle_main.py` để trải nghiệm
 ## Demo
 
-Viết sau
+### Khi mới mở app
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000604.png)
+
+### Khi nhấn chức năng `thu thập dữ liệu` 
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000626.png)
+
+### Khi nhấn chức năng `xử lý và train`
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000643.png)
+
+### Khi nhấn `chạy thử`
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000713.png)
