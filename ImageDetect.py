@@ -17,7 +17,9 @@ data_augmentation = Sequential([
 facemodel = YOLO('model/yolov11n-face.pt')
 
 class ImageDetect():
-    '''Đầu vào là mảng np.darray được đọc từ cv2, tên người lấy data và index để đặt tên thư mục chứa ảnh'''
+    '''Đầu vào là mảng np.darray được đọc từ cv2, tên người lấy data và index để đặt tên thư mục chứa ảnh
+class này chủ yếu sẽ lưu tạo thư mục chứa tên là name_label và thực hiện nhận diện gương mặt sau đó cắt và lưu ảnh vào thư mục ấy
+đồng thời hiển thị một số chú thích về quá trình lên ảnh đầu ra là image_output'''
     def __init__(self, image_input, name_lable, index):
         self.image_output = image_input.copy() # Ảnh số hóa được đưa vào cv2.read(img_path)
         self.name_lable = name_lable # Nhãn được đánh 
@@ -34,6 +36,8 @@ class ImageDetect():
         self.process()
 
     def process(self):
+        '''Khi chạy hàm này sẽ lưu tạo thưu mục chứa tên là name_label và thực hiện nhận diện gương mặt sau đó cắt và lưu ảnh vào thư mục ấy
+đồng thời hiển thị một số chú thích về quá trình lên ảnh đầu ra là image_output'''
         # Tạo thư mục chứa ảnh: data_image_raw\name_lable\out{index}.jpg
         os.makedirs("data_image_raw" + "\\" + self.name_lable, exist_ok= True)
         # Data dự đoán

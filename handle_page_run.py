@@ -20,17 +20,19 @@ class HandlePageRun(Ui_MainWindow):
         self.timerr = QTimer()
         # Start the camera feed
         self.timerr.start(30)  # Update every 30ms (approx 33 FPS)
+
+        # Thiết lập kết nối các nút khi nhấn vào
         self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
-        print(1)
         # Lấy label của data là file chứa categories của OneHotEnCoder()
         with open('model/categories.pkl', 'rb') as f:
             cat = pickle.load(f)
         self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
         # self.cap = cv2.VideoCapture(0)
 
+    # Phần này tương tự handel_page_run
+    # Hàm nhận diện 
     def start_predict(self):
-        print(1)
         if(self.mode_cam_run == 'update_frame_run'):
             self.timerr.timeout.disconnect(self.update_frame_run)
 
@@ -81,6 +83,7 @@ class HandlePageRun(Ui_MainWindow):
             # Hiển thị khung hình trên QLabel
             self.cam_view_main_2.setPixmap(QPixmap.fromImage(frame).scaled(self.cam_view_main_2.size()))
     
+    # Hàm hiển thị bình thường
     def update_frame_run(self):
         if(self.mode_cam_run == 'start_predict'):
             self.timerr.timeout.disconnect(self.start_predict)

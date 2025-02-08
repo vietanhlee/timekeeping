@@ -7,40 +7,42 @@ from ultralytics import YOLO
 from ImageDetect import ImageDetect
 from PyQt5.QtCore import QTimer
 
-
+# load model phát hiện gương mặt
 model = YOLO(r'model/yolov11n-face.pt')
 
 class HandlePageGetData(Ui_MainWindow):
+    '''class cho lớp lấy dữ liệu'''
     def __init__(self, MainWindow):
         super().__init__(MainWindow)
         # self.stackedWidget.setCurrentWidget(self.page_get_data)
-        self.count = 0
+        self.count = 0 # Biến đếm số ảnh đã lưu lại
         self.mode_cam = 'off' # 0: tắt camera, 1: bật camera hiện ảnh bình thường, 2: detect ảnh ...
 
         self.timer = QTimer()
         self.timer.start(30)  # Update every 30ms (approx 33 FPS)
 
+        # Khi bấm các nút này chương trình sẽ chạy hàm tương ứng
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
-        self.number_face = None
+        self.number_face = None # Biến số mặt người cần lấy tối đa
         # self.cap = cv2.VideoCapture(0)
 
     def start_detect(self):
-        print('hi')
+        # Đặt lại biến từ dữ liệu người dùng nhập 
         self.number_face = int(self.get_number_face.toPlainText())
         
+        # Chỉnh sửa biến flag cho chế độ hiển thị hiện tại
         if(self.mode_cam == 'update_frame'):
             self.timer.timeout.disconnect(self.update_frame)
         
+        # Nếu số người đã đủ
         if(self.count >= self.number_face):
-
             self.timer.timeout.connect(self.update_frame)
-            
-            # QTimer.singleShot(1000, lambda: setattr(self, "count", 0))
             self.count = 0
-
+        # Đặt lại chế độ của camera
         self.mode_cam = 'start_detect'
         
+        # Đọc ảnh
         check_done, frame = self.cap.read()
         if(check_done == False):
             print('Đọc ảnh không thành công')
@@ -56,14 +58,16 @@ class HandlePageGetData(Ui_MainWindow):
         img_out = self.convert_qimg(img_out)
         self.cam_view_main.setPixmap(QPixmap.fromImage(img_out).scaled(self.cam_view_main.size()))
 
-        # Hiển thị khung hình trên QLabel
+        # Hiển thị gương mặt được cắt lên khung hình nhỏ bên cạnh
         img_face = ID.img_face
         img_face = self.convert_qimg(img_face)
 
         self.view_face.setPixmap(QPixmap.fromImage(img_face).scaled(self.view_face.size()))
         
+        # Tăng biến đếm lên 1
         self.count += 1
     
+    # Hàm hiển thị camera bình thường
     def update_frame(self):
         if(self.mode_cam == 'start_detect'):
             self.timer.timeout.disconnect(self.start_detect)
@@ -85,6 +89,7 @@ class HandlePageGetData(Ui_MainWindow):
         self.timer.stop()
         event.accept()
 
+    # Hàm chuyển đổi từ image dạng arr sang qimage để phù hợp hiển thị
     def convert_qimg(self, image):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         h, w, ch = image.shape

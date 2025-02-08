@@ -28,8 +28,9 @@ class TrainLogger(Callback):
         message = f"Epoch {epoch+1}: " + " - ".join([f"{k}: {v:.4f}" for k, v in logs.items()])
         self.log_signal.emit(message)
 
+# Cần phải tạo 1 luồng phụ để thực hiện training để tránh bị delay giao diện UI
 class HandelPageTrain(Ui_MainWindow, QThread):
-    update_log_signal = pyqtSignal(str)  # Khai báo signal
+    update_log_signal = pyqtSignal(str)  # Khai báo signal để đưa thông tin về luồng chính để hiển thị lên giao diện UI
 
     def __init__(self, MainWindow):
         QThread.__init__(self)
@@ -39,18 +40,18 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.stackedWidget.setCurrentWidget(self.page_train)
         self.push_training.clicked.connect(self.start_training)
         self.note_out = ''
-        self.update_log_signal.connect(self.update_log)
+        self.update_log_signal.connect(self.update_log) # Khi có str mới cho vào thì nó sẽ kết nối với hàm update_log
     
     def start_training(self):
-        print('hi')
         self.note_out = ''
         self.log_res.setText('- Bắt đầu xử lý...')
-        self.start()
+        self.start() # Khi luồng phụ chạy lệnh này thì nó sẽ chạy qua hàm run()
     
     def run(self):
         self.process_img_to_numpy()
         self.train()
     
+    # Hàm xử lý ảnh thô
     def process_img_to_numpy(self):
         list_label = os.listdir('data_image_raw')
         data_img = []
@@ -81,6 +82,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         with open('model/categories.pkl', 'wb') as f:
             pickle.dump(encoder.categories_, f)
     
+
     def train(self):
         with open('model/categories.pkl', 'rb') as f:
             cat = pickle.load(f)
@@ -126,6 +128,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         sys.stdout = sys.__stdout__
         return stream.getvalue()
 
+    # Hàm giúp hiển thị trạng thái/câu dẫn lên luồng chính cho UI 
     def update_log(self, message):
         self.note_out += f'\n\n{message}'
         self.log_res.setText(self.note_out)

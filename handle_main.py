@@ -11,21 +11,27 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
         HandelPageTrain.__init__(self, MainWindow)
         HandlePageGetData.__init__(self, MainWindow)
 
+        # Cần phải định nghĩa lại một số thuộc tính về các nút nhất kết nối với hàm nào 
+        # Vì khi gọi init() lần lượt lên các class bố thì class bố cũng init() lên class ông 
+        # Nên vô tình đã định nghĩa các thuộc tính dưới là None (không kết nối với cái gì cả)
         self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
         self.push_training.clicked.connect(self.start_training)
 
+        # Thiết đặt các kết nối khi nhấn các nút chuyển trang
         self.button_instrucst.clicked.connect(lambda: self.change_page(1))
         self.button_get_faces.clicked.connect(lambda: self.change_page(2))
         self.button_preprocess_training.clicked.connect(lambda: self.change_page(3))
         self.button_run_trial.clicked.connect(lambda: self.change_page(4))
         
+        # Chuyển về trang đầu tiên ngay khi khởi tạo
         self.button_instrucst.click()
+
+    # Một số xử lý logic khi chuyển trang
     def change_page(self, index):
         if(index == 1):
-            print('page1')
             self.stackedWidget.setCurrentWidget(self.page_instruct)
             
             if(self.mode_cam == 'update_frame'):
@@ -45,7 +51,6 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
                 self.cap = None
 
         elif(index == 2):
-            print('page2')
             self.stackedWidget.setCurrentWidget(self.page_get_data)
             
             if(self.mode_cam_run == 'update_frame_run'):
@@ -62,7 +67,6 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
             self.mode_cam = 'update_frame'
 
         elif(index == 3):
-            print('page3')
             self.stackedWidget.setCurrentWidget(self.page_train)
             
             if(self.mode_cam == 'update_frame'):
@@ -81,7 +85,6 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
                 self.cap.release()
                 self.cap = None
         elif(index == 4):
-            print('page4')
             self.stackedWidget.setCurrentWidget(self.page_run)
             
             if(self.mode_cam == 'update_frame'):
