@@ -24,15 +24,18 @@ class HandlePageRun(Ui_MainWindow):
         # Thiết lập kết nối các nút khi nhấn vào
         self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
-        # Lấy label của data là file chứa categories của OneHotEnCoder()
-        with open('model/categories.pkl', 'rb') as f:
-            cat = pickle.load(f)
-        self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
+        self.lb = []
         # self.cap = cv2.VideoCapture(0)
 
     # Phần này tương tự handel_page_run
-    # Hàm nhận diện 
+    # Hàm dự đoán gương mặt
     def start_predict(self):
+        if len(self.lb) == 0:
+            # Lấy label của data là file chứa categories của OneHotEnCoder()
+            with open('model/categories.pkl', 'rb') as f:
+                cat = pickle.load(f)
+            self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
+
         if(self.mode_cam_run == 'update_frame_run'):
             self.timerr.timeout.disconnect(self.update_frame_run)
 

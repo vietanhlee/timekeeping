@@ -19,18 +19,19 @@ from tensorflow.keras.callbacks import Callback # type: ignore
 
 # Callback để ghi log từng epoch
 class TrainLogger(Callback):
-    def __init__(self, log_signal):
+    def __init__(self, log_signal, log_percent):
         super().__init__()
         self.log_signal = log_signal
-
+        self.log_percent = log_percent
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         message = f"Epoch {epoch+1}: " + " - ".join([f"{k}: {v:.4f}" for k, v in logs.items()])
         self.log_signal.emit(message)
-
+        self.log_percent.emit(int(65 + 35 * (epoch + 1) / 20))
 # Cần phải tạo 1 luồng phụ để thực hiện training để tránh bị delay giao diện UI
 class HandelPageTrain(Ui_MainWindow, QThread):
     update_log_signal = pyqtSignal(str)  # Khai báo signal để đưa thông tin về luồng chính để hiển thị lên giao diện UI
+    update_log_percent = pyqtSignal(int)
 
     def __init__(self, MainWindow):
         QThread.__init__(self)
@@ -41,7 +42,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.push_training.clicked.connect(self.start_training)
         self.note_out = ''
         self.update_log_signal.connect(self.update_log) # Khi có str mới cho vào thì nó sẽ kết nối với hàm update_log
-    
+        self.update_log_percent.connect(self.update_percent)
     def start_training(self):
         self.note_out = ''
         self.log_res.setText('- Bắt đầu xử lý...')
@@ -68,28 +69,30 @@ class HandelPageTrain(Ui_MainWindow, QThread):
                 label.append(item)
             
             self.update_log_signal.emit(f'- Đã xử lý xong ảnh của: {item} với số ảnh: {len(list_image)}')
-        
+        self.update_log_percent.emit(20)
         data_img = np.array(data_img) 
         cat_label = set(label.copy())
         label = np.array(label).reshape(-1, 1)
 
         self.update_log_signal.emit(f'- Shape của data: {data_img.shape}\nVới các label {cat_label}')
-        
+        self.update_log_percent.emit(40)
         encoder = OneHotEncoder(sparse_output=False)
         self.label_processed = encoder.fit_transform(label)
         self.data_processed = data_img.astype('float32') / 255
         
         with open('model/categories.pkl', 'wb') as f:
             pickle.dump(encoder.categories_, f)
-    
+
+        self.update_log_percent.emit(50)
 
     def train(self):
         with open('model/categories.pkl', 'rb') as f:
             cat = pickle.load(f)
         lb = np.array(cat[0])
         num_class = lb.size
-        
+        self.update_log_percent.emit(55)
         xtrain, xtest, ytrain, ytest = train_test_split(self.data_processed, self.label_processed, test_size=0.2)
+        self.update_log_percent.emit(60)
 
         model_cnn = Sequential([
             Input(shape=(128, 128, 3)),
@@ -103,18 +106,18 @@ class HandelPageTrain(Ui_MainWindow, QThread):
             Dense(num_class, activation='softmax')
         ])
         
-        model_cnn.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['acc'])
+        model_cnn.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['acc', 'precision'])
         
         # Ghi summary model
         model_summary = self.get_model_summary(model_cnn)
         self.update_log_signal.emit(model_summary)
-
+        self.update_log_percent.emit(65)
         self.update_log_signal.emit('- Bắt đầu train ...')
 
         # Sử dụng callback để log từng epoch
-        train_logger = TrainLogger(self.update_log_signal)
+        train_logger = TrainLogger(self.update_log_signal, self.update_log_percent)
 
-        model_cnn.fit(xtrain, ytrain, epochs=10, validation_data=(xtest, ytest), batch_size=32, callbacks=[train_logger])
+        model_cnn.fit(xtrain, ytrain, epochs= 20, validation_data=(xtest, ytest), batch_size=32, callbacks=[train_logger])
         
         self.update_log_signal.emit('- Đã train xong')
         
@@ -135,6 +138,8 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.log_res.adjustSize()
         self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
 
+    def update_percent(self, value):
+        self.progressBar.setValue(value)
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)

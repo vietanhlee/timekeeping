@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 import sys
 from handle_page_get_data import HandlePageGetData
 from handle_page_train import HandelPageTrain
@@ -10,6 +10,12 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
         HandlePageRun.__init__(self, MainWindow)
         HandelPageTrain.__init__(self, MainWindow)
         HandlePageGetData.__init__(self, MainWindow)
+        
+        self.log_res.setWordWrap(True)  # Cho phép tự động xuống dòng
+
+        # Sử dụng layout để mở rộng tự động
+        self.layout = QVBoxLayout(self.scrollAreaWidgetContents)
+        self.layout.addWidget(self.log_res)
 
         # Cần phải định nghĩa lại một số thuộc tính về các nút nhất kết nối với hàm nào 
         # Vì khi gọi init() lần lượt lên các class bố thì class bố cũng init() lên class ông 
@@ -19,7 +25,7 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
         self.push_training.clicked.connect(self.start_training)
-
+        self.radioButton.click()
         # Thiết đặt các kết nối khi nhấn các nút chuyển trang
         self.button_instrucst.clicked.connect(lambda: self.change_page(1))
         self.button_get_faces.clicked.connect(lambda: self.change_page(2))

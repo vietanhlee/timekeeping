@@ -20,9 +20,9 @@ class ImageDetect():
     '''Đầu vào là mảng np.darray được đọc từ cv2, tên người lấy data và index để đặt tên thư mục chứa ảnh
 class này chủ yếu sẽ lưu tạo thư mục chứa tên là name_label và thực hiện nhận diện gương mặt sau đó cắt và lưu ảnh vào thư mục ấy
 đồng thời hiển thị một số chú thích về quá trình lên ảnh đầu ra là image_output'''
-    def __init__(self, image_input, name_lable, index):
+    def __init__(self, image_input, name_label, index):
         self.image_output = image_input.copy() # Ảnh số hóa được đưa vào cv2.read(img_path)
-        self.name_lable = name_lable # Nhãn được đánh 
+        self.name_label = name_label # Nhãn được đánh 
         self.index = index # Dùng đặt tên tệp ảnh gương mặt sau crop
         self.check = 1 # kiểm tra sự tồn tại của gương mặt trong khung hình
         self.img_face = None
@@ -38,8 +38,8 @@ class này chủ yếu sẽ lưu tạo thư mục chứa tên là name_label và
     def process(self):
         '''Khi chạy hàm này sẽ lưu tạo thưu mục chứa tên là name_label và thực hiện nhận diện gương mặt sau đó cắt và lưu ảnh vào thư mục ấy
 đồng thời hiển thị một số chú thích về quá trình lên ảnh đầu ra là image_output'''
-        # Tạo thư mục chứa ảnh: data_image_raw\name_lable\out{index}.jpg
-        os.makedirs("data_image_raw" + "\\" + self.name_lable, exist_ok= True)
+        # Tạo thư mục chứa ảnh: data_image_raw\name_label\out{index}.jpg
+        os.makedirs("data_image_raw" + "\\" + self.name_label, exist_ok= True)
         # Data dự đoán
         face_result = facemodel.predict(self.image_output, conf = 0.6, verbose = False)
 
@@ -74,15 +74,15 @@ class này chủ yếu sẽ lưu tạo thư mục chứa tên là name_label và
                 image_to_save = augmented_image[0].numpy().astype("float32")  # Loại bỏ batch dimension và chuyển kiểu dữ liệu
                 
                 # Lưu ảnh vào thư mục vừa tạo thông qua đường dẫn đã tạo
-                cv2.imwrite(f'data_image_raw\\{self.name_lable}\\out{self.index}.jpg', img= image_to_save)
+                cv2.imwrite(f'data_image_raw\\{self.name_label}\\out{self.index}.jpg', img= image_to_save)
 
                 # Thông báo ra màn hình
-                print(f'Đã lưu ảnh thứ {self.index} của {self.name_lable}')
+                print(f'Đã lưu ảnh thứ {self.index} của {self.name_label}')
 
                 # Vẽ bounding box
                 cvzone.cornerRect(self.image_output, [x1, y1, w, h], rt = 0)
                 
                 # Vẽ text chỉ dẫn nằm ngay trên bouding box
-                cv2.putText(img = self.image_output, text = f'Da luu anh thu {self.index} cua {self.name_lable}',
+                cv2.putText(img = self.image_output, text = f'Da luu anh thu {self.index} cua {self.name_label}',
                         org = (int(x1 - 70), int(y1 - 20)), fontFace = cv2.FONT_HERSHEY_SIMPLEX, 
                         fontScale = 1, color = (0, 128, 255), thickness = 2)  

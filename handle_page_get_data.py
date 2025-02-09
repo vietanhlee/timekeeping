@@ -29,7 +29,7 @@ class HandlePageGetData(Ui_MainWindow):
 
     def start_detect(self):
         # Đặt lại biến từ dữ liệu người dùng nhập 
-        self.number_face = int(self.get_number_face.toPlainText())
+        self.number_face = int(self.get_number_face.text())
         
         # Chỉnh sửa biến flag cho chế độ hiển thị hiện tại
         if(self.mode_cam == 'update_frame'):
@@ -37,6 +37,8 @@ class HandlePageGetData(Ui_MainWindow):
         
         # Nếu số người đã đủ
         if(self.count >= self.number_face):
+            self.timer.timeout.disconnect(self.start_detect)
+            self.mode_cam = 'update_frame'
             self.timer.timeout.connect(self.update_frame)
             self.count = 0
         # Đặt lại chế độ của camera
@@ -50,8 +52,8 @@ class HandlePageGetData(Ui_MainWindow):
         frame = cv2.flip(frame, 1)
         
         # Lấy tên người được đọc ảnh
-        name_lalble = self.get_name_face.toPlainText()
-        ID = ImageDetect(image_input= frame, index= self.count, name_lable= name_lalble)
+        name_label = self.get_name_face.text()
+        ID = ImageDetect(image_input= frame, index= self.count, name_label= name_label)
         
         # Hiển thị lên màn chính ảnh đầu ra
         img_out = ID.image_output
