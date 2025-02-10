@@ -4,6 +4,9 @@ from handle_page_get_data import HandlePageGetData
 from handle_page_train import HandelPageTrain
 from handle_page_run import HandlePageRun
 import cv2
+import pickle
+import numpy as np
+from keras.api.models import load_model
 
 class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
     def __init__(self, MainWindow):
@@ -92,7 +95,12 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
                 self.cap = None
         elif(index == 4):
             self.stackedWidget.setCurrentWidget(self.page_run)
-            
+            with open('model/categories.pkl', 'rb') as f:
+                cat = pickle.load(f)
+            self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
+            self.model_cnn = load_model(r'model/model_cnn.h5')
+
+
             if(self.mode_cam == 'update_frame'):
                 self.timer.timeout.disconnect(self.update_frame)
             elif(self.mode_cam == 'start_detect'):

@@ -10,12 +10,12 @@ from keras.api.models import load_model
 import pickle
 
 face_model = YOLO(r'model/yolov11n-face.pt')
-model_cnn = load_model(r'model/model_cnn.h5')
+
 
 class HandlePageRun(Ui_MainWindow):
     def __init__(self, MainWindow):
         super().__init__(MainWindow)
-        self.stackedWidget.setCurrentWidget(self.page_run)
+        # self.stackedWidget.setCurrentWidget(self.page_run)
         self.mode_cam_run = 'off'
         self.timerr = QTimer()
         # Start the camera feed
@@ -25,6 +25,7 @@ class HandlePageRun(Ui_MainWindow):
         self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
         self.lb = []
+        self.model_cnn = None
         # self.cap = cv2.VideoCapture(0)
 
     # Phần này tương tự handel_page_run
@@ -35,7 +36,9 @@ class HandlePageRun(Ui_MainWindow):
             with open('model/categories.pkl', 'rb') as f:
                 cat = pickle.load(f)
             self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
-
+        if self.model_cnn == None:
+            self.model_cnn = load_model(r'model/model_cnn.h5')
+            
         if(self.mode_cam_run == 'update_frame_run'):
             self.timerr.timeout.disconnect(self.update_frame_run)
 
@@ -67,7 +70,7 @@ class HandlePageRun(Ui_MainWindow):
                 img_cut_expanded_0 = np.expand_dims(img_cut, axis = 0) 
 
                 # Gán nhãn
-                arr_predict = model_cnn.predict(img_cut_expanded_0, verbose = 0)
+                arr_predict = self.model_cnn.predict(img_cut_expanded_0, verbose = 0)
                 
                 # Lấy index có tỉ lệ cao nhất, axis = 1 vì đây là mảng 2 chiều [[data]] 
                 predicted_label_index = np.argmax(arr_predict, axis = 1)
