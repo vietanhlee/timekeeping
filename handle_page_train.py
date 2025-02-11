@@ -43,6 +43,7 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.note_out = ''
         self.update_log_signal.connect(self.update_log) # Khi có str mới cho vào thì nó sẽ kết nối với hàm update_log
         self.update_log_percent.connect(self.update_percent)
+        self.cat = None # categrories của khi encoder
     def start_training(self):
         self.note_out = ''
         self.log_res.setText('- Bắt đầu xử lý...')
@@ -80,15 +81,11 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         self.label_processed = encoder.fit_transform(label)
         self.data_processed = data_img.astype('float32') / 255
         
-        with open('model/categories.pkl', 'wb') as f:
-            pickle.dump(encoder.categories_, f)
-
+        self.cat = encoder.categories_
         self.update_log_percent.emit(50)
 
     def train(self):
-        with open('model/categories.pkl', 'rb') as f:
-            cat = pickle.load(f)
-        lb = np.array(cat[0])
+        lb = np.array(self.cat[0])
         num_class = lb.size
         self.update_log_percent.emit(55)
         xtrain, xtest, ytrain, ytest = train_test_split(self.data_processed, self.label_processed, test_size=0.2)
@@ -120,9 +117,13 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         model_cnn.fit(xtrain, ytrain, epochs= 20, validation_data=(xtest, ytest), batch_size=32, callbacks=[train_logger])
         
         self.update_log_signal.emit('- Đã train xong')
-        
-        model_cnn.save('model/model_cnn.h5', include_optimizer=True)
 
+        with open('model/categories.pkl', 'wb') as f:
+            pickle.dump(self.cat, f)        
+        self.update_log_signal.emit('- Đã lưu categories encoder labels')
+        model_cnn.save('model/model_cnn.h5', include_optimizer= True)
+        self.update_log_signal.emit('- Hoàn tất, có thể trải nghiệm ngay!')
+        
     def get_model_summary(self, model):
         """Ghi model summary vào string và trả về."""
         stream = io.StringIO()
