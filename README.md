@@ -14,14 +14,20 @@
 - **B2**: chạy file `handle_main.py` để trải nghiệm
 ## Demo
 
-### Khi mới mở app
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000604.png)
+### Khi mở app
+- Trang hiển thị hướng dẫn dùng sẽ hiện đầu tiên
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200413.png)
 
-### Khi nhấn chức năng `thu thập dữ liệu` 
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000626.png)
+### Chức năng `thu thập dữ liệu` 
+- Khi điền tên và số gương mặt cần cắt phần mềm sẽ tự động lấy đầy đủ số ảnh cắt gương mựt đó và lưu vào thư mục riêng
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200519.png)
 
-### Khi nhấn chức năng `xử lý và train`
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000643.png)
+- Khi nhấn tạm dừng thì phần mềm sẽ dừng việc thu thập dữ liệu gương mặt
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200610.png)
 
-### Khi nhấn `chạy thử`
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-09%20000713.png)
+### Chức năng `xử lý và train`
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200633.png)
+
+### Chức năng `chạy thử`
+- Khi nhấn chạy thử phần mềm sẽ thực hiện việc dự đoán và gán nhãn cho từng khuôn mặt được phát hiện
+![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20201258.png)
