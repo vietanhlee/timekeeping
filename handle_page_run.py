@@ -22,6 +22,7 @@ class HandlePageRun(Ui_MainWindow):
         # Start the camera feed
         self.timerr.start(30)  # Update every 30ms (approx 33 FPS)
 
+        self.OJ = CheckAndSaveImg()
         self.image_input= np.array([])
         self.name = None
         # Thiết lập kết nối các nút khi nhấn vào
@@ -29,21 +30,22 @@ class HandlePageRun(Ui_MainWindow):
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
         self.push_check_in.clicked.connect(self.check_in)
         self.push_check_out.clicked.connect(self.check_out)
+        self.push_export.clicked.connect(self.export_data)
         self.lb = []
         self.model_cnn = None
         # self.cap = cv2.VideoCapture(0)
+    def export_data(self):
+        pass
+
     def check_in(self):
         if self.name != None and self.image_input.shape != (0, ):
-            OJ = CheckAndSaveImg()
-            if not OJ.check_exists(label= self.name):
-                OJ.save_image(image_array= self.image_input, label= self.name)
-    # def check_in(self):
-    #     print('hi')
+            if not self.OJ.check_exists(label= self.name):
+                self.OJ.save_image(image_array= self.image_input, label= self.name)
         
     def check_out(self):
-        OJ = CheckAndSaveImg()
-        if self.name != None and OJ.check_exists(label= self.name):
-            OJ.delete_image(label= self.name)
+        if self.name != None and self.OJ.check_exists(label= self.name):
+            self.OJ.delete_image(label= self.name)
+
     # Phần này tương tự handel_page_run
     # Hàm dự đoán gương mặt
     def start_predict(self):
@@ -52,12 +54,12 @@ class HandlePageRun(Ui_MainWindow):
             with open('model/categories.pkl', 'rb') as f:
                 cat = pickle.load(f)
             self.lb = np.array(cat[0]) # cat là mảng 2 chiều vd: [['label']], chuyển về numpy để thao tác tiện luôn
+        
         if self.model_cnn == None:
             self.model_cnn = load_model(r'model/model_cnn.h5')
             
         if(self.mode_cam_run == 'update_frame_run'):
             self.timerr.timeout.disconnect(self.update_frame_run)
-
         self.mode_cam_run = 'start_predict'
 
         # Đọc một khung hình từ camera
@@ -72,70 +74,73 @@ class HandlePageRun(Ui_MainWindow):
             print('Không thể đọc ảnh')
         else:
             boxes_xyxy = face_result[0].boxes.xyxy.tolist()
+            # Nếu không thấy người nào
             if(len(boxes_xyxy) == 0):
                 self.name = None
                 self.image_input = np.array([])
 
+                self.label_set_name.setText('Không tìm thấy gương mặt')
+                self.labe_set_time.setText('Không tìm thấy gương mặt')
+                self.cam_view_in.setText('Không tìm thấy gương mặt')
+            # Trường hợp len > 0
             for box in boxes_xyxy:
+                txt = None
                 x, y, x2, y2 = map(int, box)
                 w = x2 - x # width: chiều rộng
                 h = y2 - y # height: chiều cao
-
                 # Vẽ bounding box
                 cvzone.cornerRect(frame, [x, y, w, h], rt = 0)
-
                 # Cắt và chuẩn hóa dữ liệu
                 img_cut = frame[y:y + h, x:x + w] 
                 img_cut = cv2.resize(img_cut, (128, 128)) 
                 img_cut = img_cut.astype('float32') / 255 
-                
                 # yêu cầu về đầu vào của input_shape của model (thêm batch size = 1)
                 img_cut_expanded_0 = np.expand_dims(img_cut, axis = 0) 
-
                 # Gán nhãn
                 arr_predict = self.model_cnn.predict(img_cut_expanded_0, verbose = 0)
-                
                 # Lấy index có tỉ lệ cao nhất, axis = 1 vì đây là mảng 2 chiều [[data]] 
                 predicted_label_index = np.argmax(arr_predict, axis = 1)
                 # Lấy tỉ lệ phần trăm tương ứng, các mảng ở đây đều là 2D nên cần trỏ truy cập vào phần tử đầu 
                 accuracy = arr_predict[0][predicted_label_index[0]] 
-
-                # Set tiêu đề hiển thị unknow nếu tỉ lệ quá nhỏ
-                txt = None
-                name = None
-                time = None
-                img_in = None
                 
+                # Lấy tên người đó
+                name =  self.lb[predicted_label_index[0]]
+
+                # Chấp nhận gương mặt
                 if accuracy >= 0.975:
                     self.image_input = frame_copy
-                    time = 'Chưa check in'
-                    img_in = 'Chưa check in'
-                    name =  self.lb[predicted_label_index[0]]
+                    self.name = name    
+                    
                     txt = name + ' ' + str(round(accuracy * 100, 2)) + ' %'
-                    self.name = name
-                    OJ = CheckAndSaveImg()
-                    if OJ.check_exists(label= name):
-                        time, img_in = OJ.get_data(label= name)
+                
+                    # Nếu đã check in
+                    if self.OJ.check_exists(label= name):
+                        # Lấy time và image lúc check in
+                        time, img_in = self.OJ.get_data(label= name)
                         img_in = self.convert_qimg(image= img_in)
+                        
                         self.cam_view_in.setPixmap(QPixmap.fromImage(img_in).scaled(self.cam_view_in.size()))
+                        self.label_set_name.setText(name)
+                        self.labe_set_time.setText(time)
                     else:
-                        self.cam_view_in.setText(img_in)
+                        self.cam_view_in.setText('Chưa check in')
+                        self.label_set_name.setText(name)
+                        self.labe_set_time.setText('Chưa check in')
+                
+                # Trường hợp độ chính xác thấp
                 else:
                     self.image_input = np.array([])
                     self.name = None
+                    
                     txt = 'unknow'
-                    name = 'Không nhận diện được'
-                    time = 'Không nhận diện được'
-                    img_in = 'Không nhận diện được'
-                    self.cam_view_in.setText(img_in)
-
-                self.label_set_name.setText(name)
-                self.labe_set_time.setText(time)
-
+                    
+                    self.cam_view_in.setText('gương mặt không tồn tại')
+                    self.label_set_name.setText('gương mặt không tồn tại')
+                    self.labe_set_time.setText('gương mặt không tồn tại')
+    
                 cv2.putText(img = frame, org= (x + w // 2 - 90, y - 25), text = txt, 
                             fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (255, 0,0), thickness= 3)
-                
-                print(arr_predict[0], name, str(round(accuracy * 100, 2)) + ' %') # Hiển thị data lên màn console
+                print(arr_predict[0], self.lb[predicted_label_index[0]], str(round(accuracy * 100, 2)) + ' %') # Hiển thị data lên màn console
 
             # Chuyển đổi khung hình từ BGR (OpenCV) sang RGB (Qt)
             frame = self.convert_qimg(frame)
@@ -144,12 +149,16 @@ class HandlePageRun(Ui_MainWindow):
     
     # Hàm hiển thị bình thường
     def update_frame_run(self):
-        self.image_input = np.array([])
-        self.name = None
-        
         if(self.mode_cam_run == 'start_predict'):
             self.timerr.timeout.disconnect(self.start_predict)
         self.mode_cam_run = 'update_frame_run'
+
+        self.image_input = np.array([])
+        self.name = None
+        
+        self.cam_view_in.setText('bấm nhận diện để chạy')
+        self.label_set_name.setText('bấm nhận diện để chạy')
+        self.labe_set_time.setText('bấm nhận diện để chạy')
 
         # Đọc một khung hình từ camera
         ret, frame = self.cap.read()
