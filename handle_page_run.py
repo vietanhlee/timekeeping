@@ -8,6 +8,7 @@ from MainUi import Ui_MainWindow
 from ultralytics import YOLO
 from keras.api.models import load_model
 import pickle
+from check_and_save_img import CheckAndSaveImg
 
 face_model = YOLO(r'model/yolov11n-face.pt')
 
@@ -21,13 +22,28 @@ class HandlePageRun(Ui_MainWindow):
         # Start the camera feed
         self.timerr.start(30)  # Update every 30ms (approx 33 FPS)
 
+        self.image_input= np.array([])
+        self.name = None
         # Thiết lập kết nối các nút khi nhấn vào
         self.push_run.clicked.connect(lambda : self.timerr.timeout.connect(self.start_predict))
         self.push_stop.clicked.connect(lambda : self.timerr.timeout.connect(self.update_frame_run))
+        self.push_check_in.clicked.connect(self.check_in)
+        self.push_check_out.clicked.connect(self.check_out)
         self.lb = []
         self.model_cnn = None
         # self.cap = cv2.VideoCapture(0)
-
+    def check_in(self):
+        if self.name != None and self.image_input.shape != (0, ):
+            OJ = CheckAndSaveImg()
+            if not OJ.check_exists(label= self.name):
+                OJ.save_image(image_array= self.image_input, label= self.name)
+    # def check_in(self):
+    #     print('hi')
+        
+    def check_out(self):
+        OJ = CheckAndSaveImg()
+        if self.name != None and OJ.check_exists(label= self.name):
+            OJ.delete_image(label= self.name)
     # Phần này tương tự handel_page_run
     # Hàm dự đoán gương mặt
     def start_predict(self):
@@ -47,12 +63,19 @@ class HandlePageRun(Ui_MainWindow):
         # Đọc một khung hình từ camera
         ret, frame = self.cap.read()
         frame = cv2.flip(frame, 1)
+
+        frame_copy = frame.copy()
+
         face_result = face_model.predict(frame, conf = 0.6, verbose = False)
 
         if(ret == 0):
             print('Không thể đọc ảnh')
         else:
             boxes_xyxy = face_result[0].boxes.xyxy.tolist()
+            if(len(boxes_xyxy) == 0):
+                self.name = None
+                self.image_input = np.array([])
+
             for box in boxes_xyxy:
                 x, y, x2, y2 = map(int, box)
                 w = x2 - x # width: chiều rộng
@@ -77,12 +100,42 @@ class HandlePageRun(Ui_MainWindow):
                 # Lấy tỉ lệ phần trăm tương ứng, các mảng ở đây đều là 2D nên cần trỏ truy cập vào phần tử đầu 
                 accuracy = arr_predict[0][predicted_label_index[0]] 
 
-                # Set tiêu đề hiển thị unknow nếu tỉ lệ quá nhỏ 
-                txt = 'unknow' if accuracy < 0.97 else self.lb[predicted_label_index[0]] + ' ' + str(round(accuracy * 100, 2)) + ' %'
-                cv2.putText(img = frame, org= (x + w // 2 - 90, y - 25), text = f'{txt}', 
+                # Set tiêu đề hiển thị unknow nếu tỉ lệ quá nhỏ
+                txt = None
+                name = None
+                time = None
+                img_in = None
+                
+                if accuracy >= 0.975:
+                    self.image_input = frame_copy
+                    time = 'Chưa check in'
+                    img_in = 'Chưa check in'
+                    name =  self.lb[predicted_label_index[0]]
+                    txt = name + ' ' + str(round(accuracy * 100, 2)) + ' %'
+                    self.name = name
+                    OJ = CheckAndSaveImg()
+                    if OJ.check_exists(label= name):
+                        time, img_in = OJ.get_data(label= name)
+                        img_in = self.convert_qimg(image= img_in)
+                        self.cam_view_in.setPixmap(QPixmap.fromImage(img_in).scaled(self.cam_view_in.size()))
+                    else:
+                        self.cam_view_in.setText(img_in)
+                else:
+                    self.image_input = np.array([])
+                    self.name = None
+                    txt = 'unknow'
+                    name = 'Không nhận diện được'
+                    time = 'Không nhận diện được'
+                    img_in = 'Không nhận diện được'
+                    self.cam_view_in.setText(img_in)
+
+                self.label_set_name.setText(name)
+                self.labe_set_time.setText(time)
+
+                cv2.putText(img = frame, org= (x + w // 2 - 90, y - 25), text = txt, 
                             fontFace = cv2.FONT_HERSHEY_SIMPLEX, fontScale = 1, color = (255, 0,0), thickness= 3)
                 
-                print(arr_predict[0], self.lb[predicted_label_index[0]], str(round(accuracy * 100, 2)) + ' %') # Hiển thị data lên màn console
+                print(arr_predict[0], name, str(round(accuracy * 100, 2)) + ' %') # Hiển thị data lên màn console
 
             # Chuyển đổi khung hình từ BGR (OpenCV) sang RGB (Qt)
             frame = self.convert_qimg(frame)
@@ -91,6 +144,9 @@ class HandlePageRun(Ui_MainWindow):
     
     # Hàm hiển thị bình thường
     def update_frame_run(self):
+        self.image_input = np.array([])
+        self.name = None
+        
         if(self.mode_cam_run == 'start_predict'):
             self.timerr.timeout.disconnect(self.start_predict)
         self.mode_cam_run = 'update_frame_run'

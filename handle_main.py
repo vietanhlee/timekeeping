@@ -28,6 +28,9 @@ class HandleMain(HandlePageGetData, HandelPageTrain, HandlePageRun):
         self.push_get_data_face.clicked.connect(lambda : self.timer.timeout.connect(self.start_detect))
         self.push_stop_get_data.clicked.connect(lambda : self.timer.timeout.connect(self.update_frame))
         self.push_training.clicked.connect(self.start_training)
+        self.push_check_in.clicked.connect(self.check_in)
+        self.push_check_out.clicked.connect(self.check_out)
+        
         self.radioButton.click()
         # Thiết đặt các kết nối khi nhấn các nút chuyển trang
         self.button_instrucst.clicked.connect(lambda: self.change_page(1))
