@@ -21,6 +21,17 @@
 
   ![](https://cdn.analyticsvidhya.com/wp-content/uploads/2024/10/59954intro-to-CNN.webp)
     <p align = 'center'> Minh họa cấu trúc CNN </p>
+
+## Nhận xét
+### Ưu điểm
+- Mô hình huấn luyện tương đối hiệu quả trong phạm vi tập data lớn gồm nhiều gương mặt được train, 
+
+- Phân loại hiểu quả hơn so với phương pháp chiết xuất đặc trưng của từng gương mặt và so sánh sự giống nhau của nó và chiết xuất đặc trưng dữ liệu cần được dự đoán khi đưa vào.
+
+### Nhược điểm
+- Dễ bị overfiting hoặc kém hiệu quả hơn với tập data ít, số người ít vì mô hình học được rất dễ bị một đặc điểm trội nào đó (màu sắc, góc độ) từ 1 gương mặt làm sai lệch đi kết quả dự đoán mặc dù đã tăng cường làm giàu dữ liệu như tăng giảm độ sáng và độ tương phản.
+
+# Tích hợp thêm trên Qt5 phần mềm chấm công cho công ty
 ## Cách chạy phần mềm
 
 - **B1**: clone project trên về và chạy lệnh sau ở thư mục vừa clone đó trong terminal:
@@ -56,4 +67,4 @@
 ![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20201258.png)
 
 
-# Hiện đang phát triển thêm chức năng phục vụ cho việc chấm công
+# Phát triển thêm chức năng phục vụ cho việc chấm công

@@ -93,13 +93,19 @@ class HandelPageTrain(Ui_MainWindow, QThread):
 
         model_cnn = Sequential([
             Input(shape=(128, 128, 3)),
+            
             Conv2D(32, (3, 3), activation='relu'),
             MaxPool2D((2, 2), padding='same'),
+
             Conv2D(64, (3, 3), activation='relu'),
             MaxPool2D((2, 2), padding='same'),
+            
             Flatten(),
+            
             Dense(128, activation='relu'),
+            
             Dropout(0.5),
+            
             Dense(num_class, activation='softmax')
         ])
         

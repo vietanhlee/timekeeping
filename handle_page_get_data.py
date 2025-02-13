@@ -31,6 +31,8 @@ class HandlePageGetData(Ui_MainWindow):
         # Chỉnh sửa biến flag cho chế độ hiển thị hiện tại
         if(self.mode_cam == 'update_frame'):
             self.timer.timeout.disconnect(self.update_frame)
+        # Đặt lại chế độ của camera
+        self.mode_cam = 'start_detect'
 
         # Đặt lại biến từ dữ liệu người dùng nhập 
         self.number_face = int(self.get_number_face.text())
@@ -38,40 +40,43 @@ class HandlePageGetData(Ui_MainWindow):
         # Nếu số người đã đủ
         if(self.count >= self.number_face):
             self.timer.timeout.disconnect(self.start_detect)
+            self.timer.timeout.disconnect(self.start_detect)
             self.mode_cam = 'update_frame'
             self.timer.timeout.connect(self.update_frame)
+            # self.push_stop_get_data.click()
             self.count = 0
+            return
         else:
-            # Đặt lại chế độ của camera
-            self.mode_cam = 'start_detect'
-            
             # Đọc ảnh
-            check_done, frame = self.cap.read()
-            if(check_done == False):
-                print('Đọc ảnh không thành công')
-            # Đảo ảnh
-            frame = cv2.flip(frame, 1)
-            
-            # Lấy tên người được đọc ảnh
-            name_label = self.get_name_face.text()
-            ID = ImageDetect(image_input= frame, index= self.count, name_label= name_label)
-            
-            # Hiển thị lên màn chính ảnh đầu ra
-            img_out = ID.image_output
-            img_out = self.convert_qimg(img_out)
-            self.cam_view_main.setPixmap(QPixmap.fromImage(img_out).scaled(self.cam_view_main.size()))
-
-            if ID.check == 1:
-                # Hiển thị gương mặt được cắt lên khung hình nhỏ bên cạnh
-                img_face = ID.img_face
-                img_face = self.convert_qimg(img_face)
-
-                self.view_face.setPixmap(QPixmap.fromImage(img_face).scaled(self.view_face.size()))
+            if self.cap != None:
+                check_done, frame = self.cap.read()
+                if(check_done == False):
+                    print('Đọc ảnh không thành công')
+                    return
                 
-                # Tăng biến đếm lên 1
-                self.count += 1
-            else:
-                self.view_face.setText('Không nhận thấy gương mặt')
+                # Đảo ảnh
+                frame = cv2.flip(frame, 1)
+                
+                # Lấy tên người được đọc ảnh
+                name_label = self.get_name_face.text()
+                ID = ImageDetect(image_input= frame, index= self.count, name_label= name_label)
+                
+                # Hiển thị lên màn chính ảnh đầu ra
+                img_out = ID.image_output
+                img_out = self.convert_qimg(img_out)
+                self.cam_view_main.setPixmap(QPixmap.fromImage(img_out).scaled(self.cam_view_main.size()))
+
+                if ID.check == 1:
+                    # Hiển thị gương mặt được cắt lên khung hình nhỏ bên cạnh
+                    img_face = ID.img_face
+                    img_face = self.convert_qimg(img_face)
+
+                    self.view_face.setPixmap(QPixmap.fromImage(img_face).scaled(self.view_face.size()))
+                    
+                    # Tăng biến đếm lên 1
+                    self.count += 1
+                else:
+                    self.view_face.setText('Không nhận thấy gương mặt')
     # Hàm hiển thị camera bình thường
     def update_frame(self):
         if(self.mode_cam == 'start_detect'):

@@ -8,11 +8,14 @@ import shutil
 
 path_root = 'image_data'
 
-# img = cv2.imread(r"test.png")
 
 class CheckAndSaveImg():
+    '''Class này dùng để ghi lại thông tin về ảnh. Nó sẽ tạo một folder mới tên là `label` (tự đặt)
+và ảnh `image` được đưa vào chứ trong đó, tên của ảnh sẽ là thời gian (ngày giờ) mà ảnh được tạo'''
+    # Hàm check folder đã tồn tại chưa
     def check_exists(self, label):
         return os.path.exists(path_root + '/' + label)
+    # Hàm lưu ảnh bên trong folder là label với tên là ngày giờ ảnh được lưu
     def save_image(self, label, image_array: np.array):
         if self.check_exists(label= label) == False:
             now = datetime.now()
@@ -22,12 +25,14 @@ class CheckAndSaveImg():
             cv2.imwrite(os.path.join(path_dir, name + '.jpg'), image_array)
         else:
             print('Đã lưu trước đó, yêu cầu xóa ...')
+    # Hàm để xóa ảnh, để xóa cả thư mục và ảnh bên trong cần dùng shutil
     def delete_image(self, label):
         path_dir = path_root + '/' + label
         try:
             shutil.rmtree(path_dir)  # Xóa cả thư mục và file bên trong
         except FileNotFoundError:
             print('Không tồn tại label')
+    # Hàm này trả về thời gian ngày giờ ảnh được lưu trong thư mục label, chính là tên của ảnh luôn
     def get_data(self, label):
         if self.check_exists(label= label):
             path = path_root + '/' + label
@@ -38,11 +43,4 @@ class CheckAndSaveImg():
 
             return date_time_img, img_array
         else:
-            # print('Xe chưa vào bãi')
-            return 'Xe chưa vào bãi'
-
-# OJ= CheckAndSaveImg()
-# # OJ.save_image(label= '36X1-4359', image_array= img)
-# a = OJ.get_data(label= '36X1-4359')
-
-# print(a[1])
+            return 'Chưa check in'
