@@ -2,36 +2,9 @@
 ## Chi tiết về code chạy console và lý thuyết các model AI
 - Phần project này chủ yếu là phát triển giao diện cho code nhận diện gương mặt chạy console. Hay nói cách khác thì chỉ là phần front end dựa trên framework Pyqt5 và thêm một số tính năng khác
 
-- Chi tiết bản code chạy trên console ở [đây](https://github.com/vietanhlee/face-recognition)
-
-## Cơ sở lý thuyết  
-### Phát hiện gương mặt
-- Các gương mặt trên được cắt trực tiếp nhờ model phát hiện gương mặt người được train trên mạng YOLO dựa theo dataset về gương mặt con người đã được gán nhãn theo format của YOLO v11
-
-  > YOLO là một mô hình mạng CNN cho việc phát hiện, nhận dạng, phân loại đối tượng. Yolo được tạo ra từ việc kết hợp giữa các convolutional layers và connected layers.Trong đóp các convolutional layers sẽ trích xuất ra các feature của ảnh, còn full-connected layers sẽ dự đoán ra xác suất đó và tọa độ của đối tượng. Thông tin về YOLO có thể tìm thấy ở [đây](https://docs.ultralytics.com/#what-are-the-licensing-options-available-for-ultralytics-yolo)
+- Chi tiết bản code nhận diện gương mặt chạy trên console và lí thuyết áp dụng ở [đây](https://github.com/vietanhlee/face-recognition)
 
 
-   ![](https://oditeksolutions.com/wp-content/uploads/2025/01/Fashionable-Blog-Banner.webp)
-  <p align = 'center'> Phát hiện gương mặt với YOLO </p>
-
-### Nhận diện các gương mặt
-- Ứng dụng mô hình CNN để train dữ liệu nhận diện các gương mặt. Các gương mặt được thu thập, gán nhãn, sau đó tiền xử lý dữ liệu và đưa vào CNN để train tạo ra model có thể phân biệt gương mặt mỗi người
-
-  > Layer cuối cùng là lớp Dense có số unit bằng số người cần phân biệt và activation là hàm softmax. Từ đó có thể phát triển code nhận diện gương mặt (nếu độ tin cậy < 90% thì gán nhãn là 'unknow' ngược lại thì ghhi nhãn của nó lên màn hình)
-
-  ![](https://cdn.analyticsvidhya.com/wp-content/uploads/2024/10/59954intro-to-CNN.webp)
-    <p align = 'center'> Minh họa cấu trúc CNN </p>
-
-## Nhận xét
-### Ưu điểm
-- Mô hình huấn luyện tương đối hiệu quả trong phạm vi tập data lớn gồm nhiều gương mặt được train, 
-
-- Phân loại hiểu quả hơn so với phương pháp chiết xuất đặc trưng của từng gương mặt và so sánh sự giống nhau của nó và chiết xuất đặc trưng dữ liệu cần được dự đoán khi đưa vào.
-
-### Nhược điểm
-- Dễ bị overfiting hoặc kém hiệu quả hơn với tập data ít, số người ít vì mô hình học được rất dễ bị một đặc điểm trội nào đó (màu sắc, góc độ) từ 1 gương mặt làm sai lệch đi kết quả dự đoán mặc dù đã tăng cường làm giàu dữ liệu như tăng giảm độ sáng và độ tương phản.
-
-# Tích hợp thêm trên Qt5 phần mềm chấm công cho công ty
 ## Cách chạy phần mềm
 
 - **B1**: clone project trên về và chạy lệnh sau ở thư mục vừa clone đó trong terminal:
@@ -43,7 +16,7 @@
 ## Demo phần mềm
 ### Khi mở phần mềm
 - Trang hiển thị hướng dẫn dùng sẽ hiện đầu tiên
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200413.png)
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132040.png)
 
 ### Chức năng `thu thập dữ liệu` 
 - Khi điền tên và số gương mặt cần cắt phần mềm sẽ tự động lấy đầy đủ số ảnh cắt gương mựt đó và lưu vào thư mục riêng
@@ -52,19 +25,30 @@
 
 - Làm tương tự cho những người còn lại đến khi hết.
 
-    ![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200519.png)
+    ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132224.png)
 
 - Khi nhấn tạm dừng thì phần mềm sẽ dừng việc thu thập dữ liệu gương mặt
-    ![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200610.png)
+    ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132251.png)
 
 ### Chức năng `xử lý và train`
 - Chọn số người cần nhận diện để phần mềm chọn cấu hình model phù hợp
 - Thanh tiến trình bên dưới hiển thị bên dưới
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20200633.png)
 
-### Chức năng `chạy thử`
-- Khi nhấn chạy thử phần mềm sẽ thực hiện việc dự đoán và gán nhãn cho từng khuôn mặt được phát hiện
-![](https://raw.githubusercontent.com/vietanhlee/face-recognition-Qt5/refs/heads/main/display_github/Screenshot%202025-02-10%20201258.png)
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132140.png)
 
+### Chức năng `chấm công`
+- Khi không nhận diện được gương mặt
 
-# Phát triển thêm chức năng phục vụ cho việc chấm công
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132318.png)
+
+- Khi nhận diện được gương mặt và đã `Check in` trước đó. Giao diện sẽ hiển thị lại thời gian check in và hình ảnh lúc check in
+
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132336.png)
+
+- Khi bấm `Check out` các thông số được thiết đặt lại từ đầu
+
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132401.png)
+
+- Khi bấm `Check in` một lần nữa. Chương trình sẽ lưu data lại, bao gồm ảnh lúc check in và thời gian lúc check in. Hiển thị thông số mỗi khi chính gương mặt đó lọt vào ống kính
+
+![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132414.png)
