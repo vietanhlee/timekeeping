@@ -19,7 +19,7 @@
 ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132040.png)
 
 ### Chức năng `thu thập dữ liệu` 
-- Khi điền tên và số gương mặt cần cắt phần mềm sẽ tự động lấy đầy đủ số ảnh cắt gương mựt đó và lưu vào thư mục riêng
+- Khi điền tên và số gương mặt cần cắt phần mềm sẽ tự động lấy đầy đủ số ảnh cắt gương mặt đó và lưu vào thư mục riêng
 
 - Nhìn thẳng vào camerea rồi bấm `run` để chương trình tự động lấy đủ số lượng gương mặt cần lấy. Nên quay nhiều hướng khác nhau để data đa dạng, tránh overfitting. Code tự điều chỉnh ánh sáng và tương phản nên không nhất thiết cần thu thập gương mặt mọi người ở cùng vị trí (nhưng có vẫn là hơn)
 
@@ -45,10 +45,12 @@
 
 ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132336.png)
 
-- Khi bấm `Check out` các thông số được thiết đặt lại từ đầu
+- Khi bấm `Check out` các thông số được thiết đặt lại từ đầu là chưa check in
 
 ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132401.png)
 
 - Khi bấm `Check in` một lần nữa. Chương trình sẽ lưu data lại, bao gồm ảnh lúc check in và thời gian lúc check in. Hiển thị thông số mỗi khi chính gương mặt đó lọt vào ống kính
 
 ![](https://raw.githubusercontent.com/vietanhlee/timekeeping/refs/heads/main/display_github/Screenshot%202025-02-13%20132414.png)
+
+- Khi bấm `Xuất EXCEL` chương trình sẽ lưu lại tất cả thông tin check in và check out của ngày hiện tại vào file `.csv`
