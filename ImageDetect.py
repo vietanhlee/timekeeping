@@ -7,11 +7,13 @@ from keras.api.models import Sequential
 import numpy as np
 import cvzone
 
-# Tạo lớp tăng cường dữ liệu
-data_augmentation = Sequential([
-    RandomBrightness(0.25),           # Thay đổi độ sáng ngẫu nhiên +- 25%
-    RandomContrast(0.25),             # Thay đổi độ tương phản +- 25%
-])
+# # Tạo lớp tăng cường dữ liệu
+# data_augmentation = Sequential([
+#     RandomBrightness(0.25),           # Thay đổi độ sáng ngẫu nhiên +- 25%
+#     RandomContrast(0.25),             # Thay đổi độ tương phản +- 25%
+# ])
+
+beta = [i for i in range(-40, 60, 2)]
 
 # Load model pre train
 facemodel = YOLO('model/yolov11n-face.pt')
@@ -65,16 +67,18 @@ class này chủ yếu sẽ lưu tạo thư mục chứa tên là name_label và
                 # Ảnh mặt được cắt ra và resize theo tiêu chuẩn
                 img_cut = self.image_output[y1: y1 + h, x1: x1 + w]
                 img_cut = cv2.resize(img_cut, (128, 128))
-                self.img_face = img_cut.copy()
                 
-                # Thực hiện tăng cường dữ liệu, thêm batch dimension do yêu cầu input_shape có bath_size thêm ở đầu
-                augmented_image = data_augmentation(np.expand_dims(img_cut, axis= 0), training= True) 
+                
+                img_cut = cv2.convertScaleAbs(img_cut, alpha=1.0, beta= beta[self.index % len(beta)])
+                self.img_face = img_cut.copy()
+                # # Thực hiện tăng cường dữ liệu, thêm batch dimension do yêu cầu input_shape có bath_size thêm ở đầu
+                # augmented_image = data_augmentation(np.expand_dims(img_cut, axis= 0), training= True) 
 
-                # Chuyển tensor thành định dạng NumPy
-                image_to_save = augmented_image[0].numpy().astype("float32")  # Loại bỏ batch dimension và chuyển kiểu dữ liệu
+                # # Chuyển tensor thành định dạng NumPy
+                # image_to_save = augmented_image[0].numpy().astype("float32")  # Loại bỏ batch dimension và chuyển kiểu dữ liệu
                 
                 # Lưu ảnh vào thư mục vừa tạo thông qua đường dẫn đã tạo
-                cv2.imwrite(f'data_image_raw\\{self.name_label}\\out{self.index}.jpg', img= image_to_save)
+                cv2.imwrite(f'data_image_raw\\{self.name_label}\\out{self.index}.jpg', img= img_cut)
 
                 # Thông báo ra màn hình
                 print(f'Đã lưu ảnh thứ {self.index} của {self.name_label}')

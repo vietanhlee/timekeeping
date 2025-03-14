@@ -1,4 +1,3 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QImage, QPixmap
 import numpy as np
@@ -107,7 +106,7 @@ class HandlePageRun(Ui_MainWindow):
                 name =  self.lb[predicted_label_index[0]]
 
                 # Chấp nhận gương mặt
-                if accuracy >= 0.975:
+                if accuracy >= 0.8:
                     self.image_input = frame_copy
                     self.name = name    
                     
@@ -183,11 +182,11 @@ class HandlePageRun(Ui_MainWindow):
         res = QImage(image.tobytes(), w, h, bytes_per_line, QImage.Format_RGB888)
         return res
     
-if __name__ == '__main__':
-    import sys
+# if __name__ == '__main__':
+#     import sys
 
-    app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    ui = HandlePageRun(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+#     app = QApplication(sys.argv)
+#     MainWindow = QMainWindow()
+#     ui = HandlePageRun(MainWindow)
+#     MainWindow.show()
+#     sys.exit(app.exec_())

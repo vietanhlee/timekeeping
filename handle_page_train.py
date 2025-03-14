@@ -11,11 +11,18 @@ import sys
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 
-from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, Dropout, Flatten # type: ignore
+from tensorflow.keras.layers import Dense, MaxPool2D, Conv2D, Dropout, Flatten,BatchNormalization # type: ignore
 from tensorflow.keras.models import Sequential# type: ignore
 from tensorflow.keras.optimizers import Adam# type: ignore
 from tensorflow.keras import Input# type: ignore
 from tensorflow.keras.callbacks import Callback # type: ignore
+
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import GlobalAveragePooling2D, Dense, Dropout
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Callback để ghi log từng epoch
 class TrainLogger(Callback):
@@ -27,7 +34,7 @@ class TrainLogger(Callback):
         logs = logs or {}
         message = f"Epoch {epoch+1}: " + " - ".join([f"{k}: {v:.4f}" for k, v in logs.items()])
         self.log_signal.emit(message)
-        self.log_percent.emit(int(65 + 35 * (epoch + 1) / 20))
+        self.log_percent.emit(int(65 + 35 * (epoch + 1) / 10))
 # Cần phải tạo 1 luồng phụ để thực hiện training để tránh bị delay giao diện UI
 class HandelPageTrain(Ui_MainWindow, QThread):
     update_log_signal = pyqtSignal(str)  # Khai báo signal để đưa thông tin về luồng chính để hiển thị lên giao diện UI
@@ -91,23 +98,50 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         xtrain, xtest, ytrain, ytest = train_test_split(self.data_processed, self.label_processed, test_size=0.2)
         self.update_log_percent.emit(60)
 
-        model_cnn = Sequential([
-            Input(shape=(128, 128, 3)),
-            
-            Conv2D(16, (3, 3), activation='relu'),
-            MaxPool2D((2, 2), padding='same'),
+        # Load MobileNetV2 (loại bỏ fully connected layer ở cuối)
+        base_model = MobileNetV2(input_shape=(128, 128, 3), include_top=False, weights="imagenet")
 
-            Flatten(),
-            
-            Dense(32, activation='relu'),
-            
+        # Đóng băng các lớp của MobileNetV2 để tránh làm hỏng trọng số pre-trained
+        base_model.trainable = False
+        for layer in base_model.layers[-1:]:  # Fine-tuning 10 lớp cuối cùng
+            layer.trainable = True
+
+        model_cnn = Sequential([
+            base_model,
+            GlobalAveragePooling2D(),  # Thay thế Flatten cho hiệu quả cao hơn
+            BatchNormalization(),
+            Dense(128, activation='relu'),  # Tăng số lượng neuron
             Dropout(0.5),
-            
-            Dense(num_class, activation='softmax')
+
+            Dense(num_class, activation='softmax')  # Đầu ra có num_class lớp (classification)
         ])
+
+        # model_cnn = Sequential([
+        #     Conv2D(32, (3, 3), activation='relu', input_shape=(128, 128, 3)),
+        #     MaxPool2D((2, 2)),
+
+        #     Conv2D(64, (3, 3), activation='relu'),
+        #     MaxPool2D((2, 2)),
+            
+        #     Conv2D(128, (3, 3), activation='relu'),
+        #     MaxPool2D((2, 2)),
+            
+        #     BatchNormalization(),
+        #     Dropout(0.5), 
+            
+        #     Flatten(),
+
+        #     Dense(128, activation='relu'),  # Tăng số lượng neuron
+        #     Dropout(0.5),
+
+        #     Dense(num_class, activation='softmax')  # Đầu ra có num_class lớp (classification)
+        # ])
+
         
-        model_cnn.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['acc', 'precision'])
-        
+        model_cnn.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['acc'])
+        # Kiểm tra cấu trúc model
+        model_cnn.summary()
+
         # Ghi summary model
         model_summary = self.get_model_summary(model_cnn)
         self.update_log_signal.emit(model_summary)
@@ -117,8 +151,18 @@ class HandelPageTrain(Ui_MainWindow, QThread):
         # Sử dụng callback để log từng epoch
         train_logger = TrainLogger(self.update_log_signal, self.update_log_percent)
 
-        model_cnn.fit(xtrain, ytrain, epochs= 20, validation_data=(xtest, ytest), batch_size=32, callbacks=[train_logger])
-        
+        # datagen = ImageDataGenerator(
+        #     rotation_range=20,
+        #     width_shift_range=0.2,
+        #     height_shift_range=0.2,
+        #     shear_range=0.2,
+        #     zoom_range=0.2,
+        #     horizontal_flip=True,
+        #     fill_mode='nearest'
+        # )
+
+        # model_cnn.fit(datagen.flow(xtrain, ytrain, batch_size=32), epochs=10, validation_data=(xtest, ytest), callbacks=[train_logger])
+        model_cnn.fit(xtrain, ytrain, batch_size=32, epochs=10, validation_data=(xtest, ytest), callbacks=[train_logger])
         self.update_log_signal.emit('- Đã train xong')
 
         with open('model/categories.pkl', 'wb') as f:
@@ -144,11 +188,11 @@ class HandelPageTrain(Ui_MainWindow, QThread):
 
     def update_percent(self, value):
         self.progressBar.setValue(value)
-if __name__ == '__main__':
-    import sys
-    app = QApplication(sys.argv)
-    main = QMainWindow()
+# if __name__ == '__main__':
+#     import sys
+#     app = QApplication(sys.argv)
+#     main = QMainWindow()
     
-    ui = HandelPageTrain(MainWindow=main)
-    main.show()
-    sys.exit(app.exec_())
+#     ui = HandelPageTrain(MainWindow=main)
+#     main.show()
+#     sys.exit(app.exec_())

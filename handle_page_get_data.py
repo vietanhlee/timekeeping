@@ -107,11 +107,11 @@ class HandlePageGetData(Ui_MainWindow):
         res = QImage(image.tobytes(), w, h, bytes_per_line, QImage.Format_RGB888)
         return res
     
-if __name__ == '__main__':
-    import sys
+# if __name__ == '__main__':
+#     import sys
 
-    app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    ui = HandlePageGetData(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+#     app = QApplication(sys.argv)
+#     MainWindow = QMainWindow()
+#     ui = HandlePageGetData(MainWindow)
+#     MainWindow.show()
+#     sys.exit(app.exec_())
